@@ -47,10 +47,13 @@ jobs:
           rm commandlinetools-linux-9477386_latest.zip
           export ANDROID_HOME=/usr/lib/android-sdk
           export PATH=$ANDROID_HOME/cmdline-tools/bin:$PATH
+          # List the contents of the cmdline-tools directory for debugging
+          echo "Contents of /usr/lib/android-sdk/cmdline-tools:"
+          ls -R /usr/lib/android-sdk/cmdline-tools
           # Create the latest directory if it doesn't exist
           mkdir -p $ANDROID_HOME/cmdline-tools/latest
           # Move the contents of the inner cmdline-tools directory to the latest directory
-          mv $ANDROID_HOME/cmdline-tools/cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest/
+          mv /usr/lib/android-sdk/cmdline-tools/cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest/
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
