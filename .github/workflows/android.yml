@@ -1,0 +1,70 @@
+name: Android CI
+
+on:
+  push:
+    branches:
+      - main
+      - "release/*"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up JDK
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "11"
+
+      # Cache Gradle dependencies
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # Set up Android SDK
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 33
+          build-tools: 33.0.2
+          ndk: 23.1.7779620
+
+      # Grant execution permissions for Gradle wrapper
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      # Build the project
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
+      # Run tests
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
+      # Optional: Lint check
+      - name: Run Lint Checks
+        run: ./gradlew lint
+
+      # Upload artifacts
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
