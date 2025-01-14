@@ -15,18 +15,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the code
+      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up JDK
+      # Step 2: Set up JDK
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: "zulu"
           java-version: "11"
 
-      # Cache Gradle dependencies
+      # Step 3: Cache Gradle dependencies
       - name: Cache Gradle dependencies
         uses: actions/cache@v3
         with:
@@ -37,32 +37,39 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      # Set up Android SDK
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
-        with:
-          api-level: 33
-          build-tools: 33.0.2
-          ndk: 23.1.7779620
+      # Step 4: Download and install Android SDK
+      - name: Install Android SDK
+        run: |
+          sudo mkdir -p /usr/lib/android-sdk
+          sudo chown $USER:$USER /usr/lib/android-sdk
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+          unzip -q commandlinetools-linux-9477386_latest.zip -d /usr/lib/android-sdk
+          rm commandlinetools-linux-9477386_latest.zip
+          export ANDROID_HOME=/usr/lib/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/bin:$PATH
+          mkdir -p $ANDROID_HOME/cmdline-tools/latest
+          mv $ANDROID_HOME/cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
-      # Grant execution permissions for Gradle wrapper
+      # Step 5: Grant execution permissions for Gradle wrapper
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
-      # Build the project
+      # Step 6: Build the project
       - name: Build Debug APK
         run: ./gradlew assembleDebug
 
-      # Run tests
+      # Step 7: Run tests
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
 
-      # Optional: Lint check
+      # Optional Step 8: Run Lint checks
       - name: Run Lint Checks
         run: ./gradlew lint
 
-      # Upload artifacts
-      - name: Upload APK
+      # Step 9: Upload APK as an artifact
+      - name: Upload Debug APK
         if: success()
         uses: actions/upload-artifact@v3
         with:
