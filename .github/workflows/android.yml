@@ -50,7 +50,6 @@ jobs:
           # Create the latest directory if it doesn't exist
           mkdir -p $ANDROID_HOME/cmdline-tools/latest
           # Move the contents of the cmdline-tools directory to the latest directory
-          mv /usr/lib/android-sdk/cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest/
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
