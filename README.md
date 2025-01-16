@@ -35,7 +35,4 @@ This project is licensed under the MIT License. See the LICENSE file for more de
 
 Thank you for using BabyBuy! We hope it helps you prepare for your new arrival with ease.
 
-css
-Copy code
-
 This version contains all the requested sections, including the setup and usage details.
